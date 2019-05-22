@@ -1,0 +1,17 @@
+{
+  "name": "esm-bugs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/register": "^7.4.4",
+    "assert": "^2.0.0",
+    "esm": "^3.2.25"
+  },
+  "scripts": {
+    "test:esm": "node -r esm index.js",
+    "test:babel": "node -r @babel/register index.js"
+  }
+}
