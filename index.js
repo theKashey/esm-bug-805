@@ -32,10 +32,15 @@ if (1) {
 
   Module._load = originalLoader;
 
-  require('./a');
+  assert.equal(require('./a').default, "a-b-42(/b.js)");
   assert.equal(require('./c').default, "42(/b.js)");
 
-  require.cache = cache;
+  // clear cache
+  Object
+    .keys(require.cache)
+    .filter(key => !cache[key])
+    .filter(key => key.indexOf('.node') < 0)
+    .forEach(key => delete require.cache[key]);
 }
 
 if (1) {
