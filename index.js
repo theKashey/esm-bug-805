@@ -11,6 +11,8 @@ const cachedFiles = getCache();
 
 if (1) {
 
+  const cache = {...require.cache};
+
   Module._load = () => {
     return "mocked";
   };
@@ -19,6 +21,7 @@ if (1) {
 
   assert.equal(require("./d"), 'mocked');
   assert.equal(require("./b"), 'mocked');
+  assert.equal(require("./c"), 'mocked');
   assert.equal(require("./a"), 'mocked');
 
   console.log('ok');
@@ -29,10 +32,10 @@ if (1) {
 
   Module._load = originalLoader;
 
-  // require('./d');
-  //
-  // assert.equal(getCache(), cachedFiles+"-/d.js");
+  require('./a');
+  assert.equal(require('./c').default, "42(/b.js)");
 
+  require.cache = cache;
 }
 
 if (1) {
@@ -42,7 +45,7 @@ if (1) {
   Module._load = (req, parent) => {
     if(['./a', './b', './c','./d'].includes(req)) {
       queue.push(req);
-      console.log(req, trimPath(parent.id));
+      console.log(req, trimPath(parent.id), trimPath(parent.parent ? parent.parent.id : '!'));
     }
     if (req === './d') {
       return trimPath(parent.id) + '-' + trimPath(parent.parent ? parent.parent.id : '!');
@@ -57,11 +60,11 @@ if (1) {
   assert.equal(queue.join('-'), './d');
   queue = [];
 
-  assert.equal(require("./a").default, 'a-b-/c.js-/b.js');
-  assert.equal(queue.join('-'), './a-./b-./c-./d');
+  assert.equal(require("./a").default, 'a-b-/c.js-/b.js(/b.js)');
+  assert.equal(queue.join('-'), './a-./b-./c-./d-./c');
   queue = [];
 
-  assert.equal(require("./b").default, 'b-/c.js-/b.js');
+  assert.equal(require("./b").default, 'b-/c.js-/b.js(/b.js)');
   assert.equal(queue.join('-'), './b');
   queue = [];
 
